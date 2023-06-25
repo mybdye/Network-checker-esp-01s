@@ -23,6 +23,8 @@
 #include <ESPping.h>
 #include <ESP8266mDNS.h>
 
+BlynkTimer timer; 
+
 const IPAddress ip_or_host(114, 114, 114, 114);
 
 unsigned long next_ping = 2000;
@@ -65,12 +67,12 @@ void setup()
   pinMode(PIN_Relay, OUTPUT);  
 
   Blynk.begin(BLYNK_AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
+  timer.setInterval(1000L, myTimer); 
 }
 
-void loop()
+void myTimer()
 {
-  Blynk.run(); // Blynk magic happens here
-if(millis() > next_ping){
+  if(millis() > next_ping){
     if(Ping.ping(ip_or_host)){
       int ping_ms = Ping.averageTime();
       Blynk.virtualWrite(V2, WiFi.RSSI());
@@ -79,4 +81,10 @@ if(millis() > next_ping){
       next_ping = millis() + 2000;
     }
   }
+}
+void loop()
+{
+  Blynk.run(); // Blynk magic happens here
+  timer.run(); // runs BlynkTimer
+
 }
